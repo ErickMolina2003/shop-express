@@ -18,7 +18,7 @@ export const isAuthenticated = async (
     const existingUser = await getUserBySessionToken(sessionToken);
 
     if (!existingUser) {
-      return res.sendStatus(403);
+      return res.sendStatus(401);
     }
 
     merge(req, { identity: existingUser });
@@ -45,11 +45,11 @@ export const isAuthenticatedAsAdmin = async (
     const existingUser = await getUserBySessionToken(sessionToken);
 
     if (!existingUser) {
-      return res.sendStatus(403);
+      return res.sendStatus(401);
     }
 
     if (!existingUser.isAdmin) {
-      return res.sendStatus(403);
+      return res.sendStatus(401);
     }
 
     merge(req, { identity: existingUser });
