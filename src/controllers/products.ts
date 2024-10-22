@@ -2,6 +2,7 @@ import {
   createProduct,
   deleteProductById,
   getProducts,
+  ProductModel,
   updateProductById,
 } from '../db/products';
 import { Response, Request } from 'express';
@@ -11,9 +12,23 @@ export const getAllProducts = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const products = await getProducts();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
 
-    return res.status(200).json(products);
+    const skip = (page - 1) * limit;
+
+    const products = await getProducts(limit, skip);
+
+    const totalProducts = await ProductModel.countDocuments();
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    return res.status(200).json({
+      data: products,
+      page,
+      totalPages,
+      totalProducts,
+    });
   } catch (error) {
     console.error(error);
     return res.sendStatus(400);
@@ -31,7 +46,7 @@ export const createAProduct = async (
       return res.sendStatus(400);
     }
 
-    const existingProduct = await getProducts().findOne({ name });
+    const existingProduct = await getProducts(1, 1).findOne({ name });
 
     if (existingProduct) {
       return res.sendStatus(400);

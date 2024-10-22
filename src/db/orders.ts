@@ -25,8 +25,12 @@ export const OrderSchema = new mongoose.Schema({
 
 export const OrderModel = mongoose.model('Order', OrderSchema);
 
-export const getOrders = () =>
-  OrderModel.find().populate('user').populate('products');
+export const getOrders = (limit: number, skip: number) =>
+  OrderModel.find()
+    .populate('user')
+    .populate('products')
+    .limit(limit)
+    .skip(skip);
 export const getOrderById = (id: string) => OrderModel.findById(id);
 export const createOrder = (values: Record<string, any>) =>
   new OrderModel(values).save().then((order) => order.toObject());

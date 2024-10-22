@@ -15,7 +15,8 @@ export const ProductSchema = new mongoose.Schema({
 
 export const ProductModel = mongoose.model('Product', ProductSchema);
 
-export const getProducts = () => ProductModel.find().populate('category');
+export const getProducts = (limit: number, skip: number) =>
+  ProductModel.find().populate('category').limit(limit).skip(skip);
 export const getProductById = (id: string) => ProductModel.findById(id);
 export const createProduct = (values: Record<string, any>) =>
   new ProductModel(values).save().then((product) => product.toObject());

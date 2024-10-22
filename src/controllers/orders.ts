@@ -1,4 +1,9 @@
-import { createOrder, deleteOrderById, getOrders } from '../db/orders';
+import {
+  createOrder,
+  deleteOrderById,
+  getOrders,
+  OrderModel,
+} from '../db/orders';
 import { Response, Request } from 'express';
 
 export const getAllOrders = async (
@@ -6,9 +11,23 @@ export const getAllOrders = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const orders = await getOrders();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
 
-    return res.status(200).json(orders);
+    const skip = (page - 1) * limit;
+
+    const orders = await getOrders(limit, skip);
+
+    const totalOrders = await OrderModel.countDocuments();
+
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    return res.status(200).json({
+      data: orders,
+      page,
+      totalPages,
+      totalOrders,
+    });
   } catch (error) {
     console.error(error);
     return res.sendStatus(400);
